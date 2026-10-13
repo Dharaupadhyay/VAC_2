@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dom</title>
+</head>
+<body>
+    <h1 id="heading">Hello student</h1>
+    <p id ='message'> welcome to javascript.</p>
+    <button onclick="changeContent()">Click me</button>
+
+    <script>
+        function changeContent() {
+            document.getElementById("heading").textContent = "Welcome to Dom!!";
+            document.getElementById("message").textContent = "This is a simple example of DOM manipulation using JavaScript.";
+        }
+    </script>
+</body>
+</html>

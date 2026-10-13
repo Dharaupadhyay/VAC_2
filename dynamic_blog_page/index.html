@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dynamic Blog Page</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    
+    <header class="header">
+        <h1>My Dynamic Blog</h1>
+        <p> Read interesting posts from our blog.</p>
+    </header>
+
+    <main class = 'container'>
+        <section class ="controls">
+            <input
+            type = "search"
+            id = "searchInput"
+            placeholder = "Search posts by title....">
+
+            <button id = "reloadButton" type ="button">
+                Reload Posts
+            </button>
+        </section>
+        <p id = "statusMessage" role = "status" aria-live="polite">
+            Loading Posts......
+        </p>
+        <section id = "postsContainer"
+        class = "posts-grid"></section>
+    </main>
+    <script src="script.js"></script>
+</body>
+</html>
