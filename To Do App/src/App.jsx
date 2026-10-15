@@ -1,138 +1,222 @@
-import {useState} from 'react';
-import './App.css';
+import { useState, useEffect } from "react";
 
-function App(){
-  const [todos, setTodos] = useState([]);
-  const [task, setTask] = useState('');
-  const [filter, setFilter] = useState('All');
-  const [editIndex, setEditIndex] = useState(null);
-  const [editTask, setEditTask] = useState('');
+const STORAGE_KEY = "todo-app-tasks";
 
-  //add new task
-  const handlesubmit = (e) => {
-    e.preventDefault();
+const loadTasks = () => {
+  try {
+    const saved = localStorage.getItem(STORAGE_KEY);
+    return saved ? JSON.parse(saved) : [];
+  } catch {
+    return [];
+  }
+};
 
-    const title = task.trim();
-    if(!title) return;
+function App() {
+  const [tasks, setTasks] = useState(loadTasks);
+  const [input, setInput] = useState("");
+  const [filter, setFilter] = useState("all"); // all | pending | completed
+  const [editingId, setEditingId] = useState(null);
+  const [editText, setEditText] = useState("");
 
-    const newTodo = {
-      id: Date.now(),
-      title,
-      completed: false
-    };
-
-    setTodos((prev) => [...prev, newTodo]);
-    setTask('');
-  };
-
-  //mark task Completed or incomplete
-  const toggleTodo = (id) => {
-    setTodos((prev) =>
-      prev.map((todo) =>
-        todo.id === id
-          ? { ...todo, completed: !todo.completed }
-          : todo
-      )
-    );
-  };
-
-  //delete task
-  const deleteTodo = (id) => {
-    setTodos((prev) => prev.filter((todo) => todo.id !== id));
-
-    if (editIndex === id) {
-      setEditIndex(null);
-      setEditTask('');
+  useEffect(() => {
+    try {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(tasks));
+    } catch {
+      /* ignore storage errors */
     }
+  }, [tasks]);
+
+  const addTask = () => {
+    const text = input.trim();
+    if (!text) return;
+    setTasks([...tasks, { id: Date.now(), text, completed: false }]);
+    setInput("");
   };
 
-  //start editing a task
-  const startEdit = (todo) => {
-    setEditIndex(todo.id);
-    setEditTask(todo.title);
+  const toggleTask = (id) =>
+    setTasks(tasks.map((t) => (t.id === id ? { ...t, completed: !t.completed } : t)));
+
+  const deleteTask = (id) => setTasks(tasks.filter((t) => t.id !== id));
+
+  const startEdit = (task) => {
+    setEditingId(task.id);
+    setEditText(task.text);
   };
 
-  //save edited task
-  const saveEdit = (e) => {
-    e.preventDefault();
-      
-    const title = editTask.trim();
-    if (!title) return;
-
-    setTodos((prev) =>
-      prev.map((todo) => (todo.id === editIndex ? { ...todo, title } : todo))
-    );
-    setEditIndex(null);
-    setEditTask('');
+  const saveEdit = (id) => {
+    const text = editText.trim();
+    if (text) {
+      setTasks(tasks.map((t) => (t.id === id ? { ...t, text } : t)));
+    }
+    setEditingId(null);
+    setEditText("");
   };
 
-  const filteredTodos = todos.filter((todo) => {
-    if (filter === 'Active') return !todo.completed;
-    if (filter === 'Completed') return todo.completed;
+  const cancelEdit = () => {
+    setEditingId(null);
+    setEditText("");
+  };
+
+  const visibleTasks = tasks.filter((t) => {
+    if (filter === "pending") return !t.completed;
+    if (filter === "completed") return t.completed;
     return true;
   });
 
+  const total = tasks.length;
+  const completed = tasks.filter((t) => t.completed).length;
+  const pending = total - completed;
+
   return (
-    <main>
-      <h1>To Do List</h1>
-      <form onSubmit={handlesubmit}>
+    <div className="todo">
+      <style>{css}</style>
+
+      <h1>Todo App</h1>
+
+      <div className="add-row">
         <input
           type="text"
-          value={task}
-          onChange={(e) => setTask(e.target.value)}
-          placeholder="Add a task"
+          placeholder="Enter a task..."
+          value={input}
+          onChange={(e) => setInput(e.target.value)}
+          onKeyDown={(e) => e.key === "Enter" && addTask()}
         />
-        <button type="submit">Add</button>
-      </form>
+        <button onClick={addTask}>Add Task</button>
+      </div>
 
-      <label>
-        Show{' '}
-        <select value={filter} onChange={(e) => setFilter(e.target.value)}>
-          <option>All</option>
-          <option>Active</option>
-          <option>Completed</option>
-        </select>
-      </label>
+      <div className="filters">
+        {["all", "pending", "completed"].map((f) => (
+          <button
+            key={f}
+            className={filter === f ? "active" : ""}
+            onClick={() => setFilter(f)}
+          >
+            {f[0].toUpperCase() + f.slice(1)}
+          </button>
+        ))}
+      </div>
 
-      <ul>
-        {filteredTodos.map((todo) => (
-          <li key={todo.id}>
-            {editIndex === todo.id ? (
-              <form onSubmit={(e) => saveEdit(e)}>
-                <input
-                  value={editTask}
-                  onChange={(e) => setEditTask(e.target.value)}
-                  autoFocus
-                />
-                <button type="submit">Save</button>
-                <button type="button" onClick={() => setEditIndex(null)}>
-                  Cancel
-                </button>
-              </form>
-            ) : (
+      <div className="list">
+        {visibleTasks.length === 0 && <p className="empty">No tasks here.</p>}
+
+        {visibleTasks.map((task) => (
+          <div className="task" key={task.id}>
+            <input
+              type="checkbox"
+              checked={task.completed}
+              onChange={() => toggleTask(task.id)}
+            />
+
+            {editingId === task.id ? (
               <>
                 <input
-                  type="checkbox"
-                  checked={todo.completed}
-                  onChange={() => toggleTodo(todo.id)}
+                  className="edit-input"
+                  type="text"
+                  value={editText}
+                  autoFocus
+                  onChange={(e) => setEditText(e.target.value)}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter") saveEdit(task.id);
+                    if (e.key === "Escape") cancelEdit();
+                  }}
                 />
-                <span>{todo.title}</span>
-                <button
-                  type="button"
-                  onClick={() => startEdit(todo)}
-                >
-                  Edit
-                </button>
-                <button type="button" onClick={() => deleteTodo(todo.id)}>
-                  Delete
-                </button>
+                <button onClick={() => saveEdit(task.id)}>Save</button>
+                <button onClick={cancelEdit}>Cancel</button>
+              </>
+            ) : (
+              <>
+                <span className={task.completed ? "text done" : "text"}>{task.text}</span>
+                <button onClick={() => startEdit(task)}>Edit</button>
+                <button onClick={() => deleteTask(task.id)}>Delete</button>
               </>
             )}
-          </li>
+          </div>
         ))}
-      </ul>
-    </main>
+      </div>
+
+      <div className="stats">
+        <p>Total Tasks: {total}</p>
+        <p>Completed: {completed}</p>
+        <p>Pending: {pending}</p>
+      </div>
+    </div>
   );
 }
+
+const css = `
+.todo {
+  max-width: 560px;
+  margin: 0 auto;
+  padding: 2rem 1rem;
+  text-align: center;
+  color: #f2f2f2;
+  font-family: system-ui, Arial, sans-serif;
+}
+.todo h1 { font-size: 2.6rem; margin-bottom: 1.5rem; }
+
+.todo button {
+  background: #8a8a8a;
+  color: #fff;
+  border: 1px solid transparent;
+  border-radius: 4px;
+  padding: 0.6rem 1rem;
+  font-size: 1rem;
+  cursor: pointer;
+}
+.todo button:hover { background: #9d9d9d; }
+.todo button:focus-visible,
+.todo input:focus-visible { outline: 2px solid #fff; outline-offset: 2px; }
+
+.todo .add-row {
+  display: flex;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+.todo .add-row input {
+  flex: 1;
+  min-width: 0;
+  padding: 0.8rem 1rem;
+  font-size: 1rem;
+  color: #fff;
+  background: #7a7a7a;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+}
+.todo .add-row input::placeholder { color: #e6e6e6; }
+
+.todo .filters {
+  display: flex;
+  justify-content: center;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+.todo .filters button.active { background: #c9c9c9; color: #111; }
+
+.todo .list { display: flex; flex-direction: column; gap: 0.75rem; }
+.todo .task {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.9rem 1rem;
+  border: 1px solid #e6e6e6;
+  text-align: left;
+}
+.todo .task .text { flex: 1; font-size: 1.15rem; word-break: break-word; }
+.todo .task .text.done { text-decoration: line-through; opacity: 0.55; }
+.todo .task .edit-input {
+  flex: 1;
+  min-width: 0;
+  padding: 0.5rem;
+  font-size: 1rem;
+  color: #fff;
+  background: #7a7a7a;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+}
+.todo .empty { opacity: 0.6; }
+
+.todo .stats { margin-top: 1.5rem; font-weight: 600; }
+.todo .stats p { margin: 0.35rem 0; }
+`;
 
 export default App;
