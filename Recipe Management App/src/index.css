@@ -1,0 +1,90 @@
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Playfair+Display:ital,wght@0,600;0,700;1,600&display=swap');
+
+:root {
+  --font-body: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
+  --font-serif: 'Playfair Display', Georgia, serif;
+
+  --color-primary: #e65100;
+  --color-primary-hover: #cc4400;
+  --color-primary-light: #fff3e0;
+  --color-primary-subtle: rgba(230, 81, 0, 0.08);
+
+  --color-accent: #ffb300;
+  --color-accent-subtle: rgba(255, 179, 0, 0.15);
+
+  --color-bg: #fcfbfa;
+  --color-surface: #ffffff;
+  --color-surface-hover: #faf8f5;
+  --color-border: #eee7df;
+  --color-border-hover: #d8cec3;
+
+  --color-text: #2c2523;
+  --color-text-muted: #726764;
+  --color-text-light: #9e9390;
+
+  --color-danger: #d93838;
+  --color-danger-bg: #fdf2f2;
+  --color-success: #15803d;
+  --color-success-bg: #ecfdf5;
+
+  --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.05);
+  --shadow-md: 0 4px 14px rgba(44, 37, 35, 0.07);
+  --shadow-lg: 0 12px 32px rgba(44, 37, 35, 0.1);
+  --shadow-card-hover: 0 16px 36px rgba(44, 37, 35, 0.12);
+
+  --radius-sm: 8px;
+  --radius-md: 12px;
+  --radius-lg: 18px;
+  --radius-full: 9999px;
+
+  --transition-fast: 0.15s ease;
+  --transition-normal: 0.25s ease;
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html, body {
+  min-height: 100%;
+  font-family: var(--font-body);
+  background-color: var(--color-bg);
+  color: var(--color-text);
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+body {
+  overflow-x: hidden;
+}
+
+#root {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+button {
+  font-family: inherit;
+  border: none;
+  background: none;
+  cursor: pointer;
+}
+
+input, textarea, select {
+  font-family: inherit;
+  font-size: 15px;
+}
+
+img {
+  max-width: 100%;
+  display: block;
+}
