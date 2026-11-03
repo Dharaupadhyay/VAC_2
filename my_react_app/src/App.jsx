@@ -1,105 +1,217 @@
-import { useRef, useState } from 'react'
-import './App.css'
+// import React from "react";
 
-export default function App() {
-  const cardRef = useRef(null)
-  const [form, setForm] = useState({ name: '', email: '' })
-  const [status, setStatus] = useState('idle') // idle | loading | done
-  const [error, setError] = useState('')
+// function App() {
 
-  // Spotlight follows the cursor inside the card
-  const onMove = (e) => {
-    const r = cardRef.current.getBoundingClientRect()
-    cardRef.current.style.setProperty('--mx', `${e.clientX - r.left}px`)
-    cardRef.current.style.setProperty('--my', `${e.clientY - r.top}px`)
-  }
+//   const showMessage = () => {
+//     alert("Button Clicked Successfully");
+//   };
 
-  const onChange = (e) => {
-    setForm({ ...form, [e.target.name]: e.target.value })
-    if (error) setError('')
-  }
+//   return (
+//     <div>
+//       <h2>Welcome to React</h2>
 
-  const onSubmit = (e) => {
-    e.preventDefault()
-    if (!form.name.trim()) return setError('Enter your name.')
-    if (!/^\S+@\S+\.\S+$/.test(form.email))
-      return setError('Enter a valid email, like you@example.com.')
+//       <button onClick={showMessage}>
+//         Click Me
+//       </button>
+//     </div>
+//   );
+// }
 
-    setStatus('loading')
-    // TODO: replace this timeout with your real API call
-    setTimeout(() => setStatus('done'), 1200)
-  }
+// export default App;
 
-  const reset = () => {
-    setForm({ name: '', email: '' })
-    setStatus('idle')
-  }
+
+
+
+
+
+
+//Onchange
+// import React from "react";
+
+// function App() {
+
+//   const handleChange = (event) => {
+//     console.log(event.target.value);
+//   };
+
+//   return (
+//     <div>
+//       <h2>Welcome to React</h2>
+
+//       <input
+//         type="text"
+//         onChange={handleChange}
+//         placeholder="Enter your name"
+//       />
+//     </div>
+//   );
+// }
+
+// export default App;
+
+
+
+
+
+
+
+
+// Form + useState + onChange + onSubmit + LocalStorage + Console logs
+import { useState, useRef } from "react";
+import "./App.css";
+
+function App() {
+  const cardRef = useRef(null);
+
+  const [formData, setFormData] = useState({
+    name: "",
+    email: ""
+  });
+  const [errors, setErrors] = useState({});
+  const [submittedData, setSubmittedData] = useState(null);
+  const [loading, setLoading] = useState(false);
+
+  // Cursor spotlight on card
+  const handleMouseMove = (e) => {
+    const r = cardRef.current.getBoundingClientRect();
+    cardRef.current.style.setProperty("--mx", `${e.clientX - r.left}px`);
+    cardRef.current.style.setProperty("--my", `${e.clientY - r.top}px`);
+  };
+
+  // Universal onChange handler
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setFormData({ ...formData, [name]: value });
+
+    if (errors[name]) {
+      setErrors({ ...errors, [name]: "" });
+    }
+  };
+
+  const validateForm = () => {
+    const newErrors = {};
+
+    if (!formData.name.trim()) {
+      newErrors.name = "Name is required.";
+    }
+
+    if (!formData.email.trim()) {
+      newErrors.email = "Email is required.";
+    } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) {
+      newErrors.email = "Please enter a valid email address.";
+    }
+
+    return newErrors;
+  };
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+
+    const validationErrors = validateForm();
+    if (Object.keys(validationErrors).length > 0) {
+      console.warn("⚠️ Validation failed:", validationErrors);
+      setErrors(validationErrors);
+      return;
+    }
+
+    setLoading(true);
+
+    const payload = { name: formData.name.trim(), email: formData.email.trim() };
+
+    // Console par request dikhegi
+    console.group("🚀 Form Submit");
+    console.log("➡️ REQUEST  POST /api/early-access");
+    console.log("   headers:", { "Content-Type": "application/json" });
+    console.log("   body:", payload);
+
+    // Fake network delay (baad me real fetch/axios laga lena)
+    setTimeout(() => {
+      const existingEntries = JSON.parse(localStorage.getItem("formDataList")) || [];
+      const newEntry = { id: Date.now(), ...payload };
+      const updatedEntries = [...existingEntries, newEntry];
+
+      localStorage.setItem("formDataList", JSON.stringify(updatedEntries));
+      localStorage.setItem("formData", JSON.stringify(payload));
+
+      console.log("⬅️ RESPONSE 200 OK", { success: true, id: newEntry.id });
+      console.log("✅ Form Submitted Data:", payload);
+      console.log("📦 LocalStorage (formData):", JSON.parse(localStorage.getItem("formData")));
+      console.log("📚 All LocalStorage Entries (formDataList):", updatedEntries);
+      console.table(updatedEntries);
+      console.groupEnd();
+
+      setSubmittedData(payload);
+      setFormData({ name: "", email: "" });
+      setLoading(false);
+    }, 1000);
+  };
 
   return (
     <main className="page">
       <div className="blob blob-a" />
       <div className="blob blob-b" />
 
-      <section className="card" ref={cardRef} onMouseMove={onMove}>
-        {status === 'done' ? (
-          <div className="done">
+      <section className="card" ref={cardRef} onMouseMove={handleMouseMove}>
+        <h1>Get early access</h1>
+        <p className="sub">
+          Drop your details and we'll email you when the doors open.
+        </p>
+
+        <form onSubmit={handleSubmit} noValidate>
+          <div className="field">
+            <input
+              id="name"
+              type="text"
+              name="name"
+              placeholder=" "
+              autoComplete="name"
+              value={formData.name}
+              onChange={handleChange}
+              className={errors.name ? "input-error" : ""}
+            />
+            <label htmlFor="name">Full name</label>
+            {errors.name && <span className="error-message">{errors.name}</span>}
+          </div>
+
+          <div className="field">
+            <input
+              id="email"
+              type="email"
+              name="email"
+              placeholder=" "
+              autoComplete="email"
+              value={formData.email}
+              onChange={handleChange}
+              className={errors.email ? "input-error" : ""}
+            />
+            <label htmlFor="email">Email address</label>
+            {errors.email && <span className="error-message">{errors.email}</span>}
+          </div>
+
+          <button
+            type="submit"
+            className={`cta ${loading ? "loading" : ""}`}
+            disabled={loading}
+          >
+            <span>{loading ? "Joining…" : "Join the list"}</span>
+          </button>
+        </form>
+
+        {submittedData && (
+          <div className="submitted-card">
             <svg className="check" viewBox="0 0 52 52" aria-hidden="true">
               <circle cx="26" cy="26" r="24" />
               <path d="M15 27l8 8 14-16" />
             </svg>
-            <h2>You're on the list, {form.name.split(' ')[0]}.</h2>
-            <p>We'll email {form.email} the moment the doors open.</p>
-            <button type="button" className="link" onClick={reset}>
-              Add another person
-            </button>
+            <div>
+              <h3>You're on the list, {submittedData.name.split(" ")[0]}.</h3>
+              <p>{submittedData.email}</p>
+            </div>
           </div>
-        ) : (
-          <form onSubmit={onSubmit} noValidate>
-            <h1>Get early access</h1>
-            <p className="sub">
-              Drop your details and we'll email you when the doors open.
-            </p>
-
-            <div className="field">
-              <input
-                id="name"
-                name="name"
-                type="text"
-                placeholder=" "
-                autoComplete="name"
-                value={form.name}
-                onChange={onChange}
-              />
-              <label htmlFor="name">Your name</label>
-            </div>
-
-            <div className="field">
-              <input
-                id="email"
-                name="email"
-                type="email"
-                placeholder=" "
-                autoComplete="email"
-                value={form.email}
-                onChange={onChange}
-              />
-              <label htmlFor="email">Email address</label>
-            </div>
-
-            <p className="error" role="alert">
-              {error}
-            </p>
-
-            <button
-              type="submit"
-              className={`cta ${status === 'loading' ? 'loading' : ''}`}
-              disabled={status === 'loading'}
-            >
-              <span>{status === 'loading' ? 'Joining…' : 'Join the list'}</span>
-            </button>
-          </form>
         )}
       </section>
     </main>
-  )
+  );
 }
+
+export default App;

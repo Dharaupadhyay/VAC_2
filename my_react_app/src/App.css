@@ -251,3 +251,47 @@ h2 {
     animation-delay: 0s;
   }
 }
+
+/* ---- Per-field errors ---- */
+.error-message {
+  display: block;
+  margin: 6px 4px 0;
+  font-size: 0.85rem;
+  color: #ff8fb8;
+}
+.field input.input-error {
+  border-color: #ff6b9a;
+  box-shadow: 0 0 0 4px rgba(255, 107, 154, 0.15);
+}
+
+/* ---- Submitted info ---- */
+.submitted-card {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-top: 24px;
+  padding: 18px;
+  border: 1px solid var(--line);
+  border-radius: 16px;
+  background: rgba(255, 255, 255, 0.05);
+}
+.submitted-card .check {
+  flex: none;
+  width: 48px;
+  height: 48px;
+  margin: 0;
+}
+.submitted-card h3 {
+  margin: 0 0 4px;
+  font-family: 'Bricolage Grotesque', sans-serif;
+  font-size: 1.1rem;
+}
+.submitted-card p {
+  margin: 0 0 6px;
+  color: var(--muted);
+  overflow-wrap: anywhere;
+}
+.submitted-card small {
+  color: var(--muted);
+  opacity: 0.8;
+}
