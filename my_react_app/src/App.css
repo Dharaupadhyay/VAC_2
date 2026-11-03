@@ -1,0 +1,253 @@
+:root {
+  --bg: #170f2b;
+  --ink: #f1ecff;
+  --muted: #a99fc9;
+  --pink: #ff4f9a;
+  --blue: #5b8cff;
+  --line: rgba(255, 255, 255, 0.14);
+}
+
+.page {
+  position: relative;
+  min-height: 100vh;
+  display: grid;
+  place-items: center;
+  padding: 24px;
+  background: var(--bg);
+  color: var(--ink);
+  font-family: 'DM Sans', system-ui, sans-serif;
+  overflow: hidden;
+}
+
+/* Drifting colour blobs behind the card */
+.blob {
+  position: absolute;
+  width: 46vmax;
+  height: 46vmax;
+  border-radius: 50%;
+  filter: blur(90px);
+  opacity: 0.55;
+  pointer-events: none;
+}
+.blob-a {
+  background: var(--pink);
+  top: -18vmax;
+  left: -12vmax;
+  animation: drift-a 16s ease-in-out infinite alternate;
+}
+.blob-b {
+  background: var(--blue);
+  bottom: -20vmax;
+  right: -14vmax;
+  animation: drift-b 19s ease-in-out infinite alternate;
+}
+@keyframes drift-a {
+  to { transform: translate(18vmax, 12vmax) scale(1.15); }
+}
+@keyframes drift-b {
+  to { transform: translate(-16vmax, -10vmax) scale(0.9); }
+}
+
+/* Glass card with cursor spotlight */
+.card {
+  --mx: 50%;
+  --my: 0%;
+  position: relative;
+  width: min(420px, 100%);
+  padding: 40px 36px 36px;
+  border-radius: 24px;
+  background: rgba(23, 15, 43, 0.55);
+  border: 1px solid var(--line);
+  backdrop-filter: blur(22px);
+  -webkit-backdrop-filter: blur(22px);
+  box-shadow: 0 30px 80px rgba(0, 0, 0, 0.45);
+  overflow: hidden;
+}
+.card::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(
+    380px circle at var(--mx) var(--my),
+    rgba(255, 255, 255, 0.13),
+    transparent 60%
+  );
+  pointer-events: none;
+}
+.card > * {
+  position: relative;
+}
+
+h1,
+h2 {
+  font-family: 'Bricolage Grotesque', sans-serif;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  margin: 0;
+}
+h1 {
+  font-size: 2.3rem;
+  line-height: 1.05;
+}
+h2 {
+  font-size: 1.7rem;
+  line-height: 1.15;
+}
+.sub {
+  margin: 12px 0 28px;
+  color: var(--muted);
+  line-height: 1.5;
+}
+
+/* Floating-label inputs */
+.field {
+  position: relative;
+  margin-bottom: 16px;
+}
+.field input {
+  width: 100%;
+  box-sizing: border-box;
+  padding: 24px 16px 10px;
+  font: inherit;
+  font-size: 1rem;
+  color: var(--ink);
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  outline: none;
+  transition: border-color 0.2s, background 0.2s, box-shadow 0.2s;
+}
+.field input:focus {
+  border-color: var(--pink);
+  background: rgba(255, 255, 255, 0.09);
+  box-shadow: 0 0 0 4px rgba(255, 79, 154, 0.18);
+}
+.field label {
+  position: absolute;
+  left: 16px;
+  top: 18px;
+  color: var(--muted);
+  pointer-events: none;
+  transform-origin: left top;
+  transition: transform 0.2s ease, color 0.2s;
+}
+.field input:focus + label,
+.field input:not(:placeholder-shown) + label {
+  transform: translateY(-11px) scale(0.78);
+  color: var(--pink);
+}
+
+.error {
+  min-height: 1.3em;
+  margin: 0 0 12px;
+  font-size: 0.9rem;
+  color: #ff8fb8;
+}
+
+/* Button */
+.cta {
+  position: relative;
+  width: 100%;
+  padding: 16px;
+  font: inherit;
+  font-weight: 700;
+  font-size: 1.05rem;
+  color: #fff;
+  border: 0;
+  border-radius: 14px;
+  cursor: pointer;
+  background: linear-gradient(110deg, var(--pink), var(--blue), var(--pink));
+  background-size: 200% 100%;
+  transition: background-position 0.5s ease, transform 0.15s ease,
+    box-shadow 0.2s ease;
+  box-shadow: 0 10px 30px rgba(255, 79, 154, 0.35);
+}
+.cta:hover:not(:disabled) {
+  background-position: 100% 0;
+  transform: translateY(-2px);
+  box-shadow: 0 14px 36px rgba(91, 140, 255, 0.4);
+}
+.cta:active:not(:disabled) {
+  transform: translateY(0) scale(0.99);
+}
+.cta:focus-visible,
+.link:focus-visible {
+  outline: 3px solid #fff;
+  outline-offset: 3px;
+}
+.cta:disabled {
+  cursor: progress;
+  opacity: 0.85;
+}
+.cta.loading span::after {
+  content: '';
+  display: inline-block;
+  width: 14px;
+  height: 14px;
+  margin-left: 10px;
+  vertical-align: -2px;
+  border: 2px solid rgba(255, 255, 255, 0.4);
+  border-top-color: #fff;
+  border-radius: 50%;
+  animation: spin 0.7s linear infinite;
+}
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+/* Success state */
+.done {
+  text-align: center;
+  padding: 12px 0 4px;
+}
+.done p {
+  color: var(--muted);
+  line-height: 1.5;
+  margin: 12px 0 20px;
+  overflow-wrap: anywhere;
+}
+.check {
+  width: 76px;
+  height: 76px;
+  margin-bottom: 18px;
+  fill: none;
+  stroke-width: 3;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+.check circle {
+  stroke: var(--pink);
+  stroke-dasharray: 152;
+  stroke-dashoffset: 152;
+  animation: draw 0.6s ease forwards;
+}
+.check path {
+  stroke: #fff;
+  stroke-dasharray: 40;
+  stroke-dashoffset: 40;
+  animation: draw 0.4s 0.5s ease forwards;
+}
+@keyframes draw {
+  to { stroke-dashoffset: 0; }
+}
+.link {
+  background: none;
+  border: 0;
+  padding: 4px;
+  font: inherit;
+  color: var(--blue);
+  cursor: pointer;
+  text-decoration: underline;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .blob,
+  .cta.loading span::after {
+    animation: none;
+  }
+  .check circle,
+  .check path {
+    animation-duration: 0.01s;
+    animation-delay: 0s;
+  }
+}
